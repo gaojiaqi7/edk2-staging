@@ -254,7 +254,7 @@ InstallAcpiTables (
   }
 
   if (EFI_ERROR (Status)) {
-    Status = InstallOvmfFvTables (AcpiTable);
+    //Status = InstallOvmfFvTables (AcpiTable);
   }
 
   return Status;
