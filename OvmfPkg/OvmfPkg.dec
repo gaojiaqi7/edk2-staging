@@ -340,6 +340,9 @@
   #
   gUefiOvmfPkgTokenSpaceGuid.PcdTdxAcceptPageSize|0x1000|UINT64|0x5d
 
+  ## The Tdx lazy accept page size.
+  gUefiOvmfPkgTokenSpaceGuid.PcdTdxAcceptPartialMemorySize|0|UINT64|0x5e
+
 [PcdsDynamic, PcdsDynamicEx]
   gUefiOvmfPkgTokenSpaceGuid.PcdEmuVariableEvent|0|UINT64|2
   gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashVariablesEnable|FALSE|BOOLEAN|0x10

@@ -85,6 +85,8 @@
   gUefiOvmfPkgTokenSpaceGuid.PcdTdxSetNxForStack
   gUefiOvmfPkgTokenSpaceGuid.PcdTdxPteMemoryEncryptionAddressOrMask
   gUefiOvmfPkgTokenSpaceGuid.PcdOvmfSecGhcbBackupBase
+  gUefiOvmfPkgTokenSpaceGuid.PcdTdxAcceptPartialMemorySize
+
   //
   // TODO check these PCDs' impact on Ovmf
   //
