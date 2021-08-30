@@ -171,6 +171,8 @@
   gEfiCapsuleArchProtocolGuid                   ## CONSUMES
   gEfiWatchdogTimerArchProtocolGuid             ## CONSUMES
 
+  gEfiMemoryAcceptProtocolGuid                  ## CONSUMES
+
 [Pcd]
   gEfiMdeModulePkgTokenSpaceGuid.PcdLoadFixAddressBootTimeCodePageNumber    ## SOMETIMES_CONSUMES
   gEfiMdeModulePkgTokenSpaceGuid.PcdLoadFixAddressRuntimeCodePageNumber     ## SOMETIMES_CONSUMES
