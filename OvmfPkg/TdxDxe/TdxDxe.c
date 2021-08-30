@@ -24,10 +24,34 @@
 #include <Library/PcdLib.h>
 #include <Library/UefiLib.h>
 #include <Protocol/Cpu.h>
+#include <Protocol/MemoryAccept.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/TdvfPlatformLib.h>
 #include <IndustryStandard/Tdx.h>
 #include <Library/TdxLib.h>
+
+EFI_HANDLE                      mTdxDxeHandle  = NULL;
+
+EFI_STATUS
+EFIAPI
+TdxMemoryAccept (
+  IN EFI_MEMORY_ACCEPT_PROTOCOL       *This,
+  IN EFI_PHYSICAL_ADDRESS             StartAddress,
+  IN UINTN                            Size
+  )
+{
+ 
+  EFI_STATUS                  Status;
+
+  DEBUG ((DEBUG_INFO, "Tdx Accept start address: 0x%lx, size: 0x%lx\n", StartAddress, Size));
+  Status = TdAcceptPages (StartAddress, Size / SIZE_4KB, SIZE_4KB);
+
+  return Status;
+}
+
+EFI_MEMORY_ACCEPT_PROTOCOL      mMemoryAcceptProtocol = {
+  TdxMemoryAccept
+};
 
 /**
   Location of resource hob matching type and starting address
@@ -124,6 +148,7 @@ TdxDxeEntryPoint (
   EFI_HOB_GUID_TYPE             *GuidHob;
   UINT32                        CpuMaxLogicalProcessorNumber;
   TD_RETURN_DATA                TdReturnData;
+ // EFI_PHYSICAL_ADDRESS          TestAddress;
 
   GuidHob = GetFirstGuidHob(&gUefiOvmfPkgTdxPlatformGuid);
 
@@ -132,7 +157,14 @@ TdxDxeEntryPoint (
   }
 
   PlatformInfo = (EFI_HOB_PLATFORM_INFO *)GET_GUID_HOB_DATA (GuidHob);
- 
+
+  Status = gBS->InstallProtocolInterface (&mTdxDxeHandle,
+                  &gEfiMemoryAcceptProtocolGuid, EFI_NATIVE_INTERFACE,
+                  &mMemoryAcceptProtocol);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Install EfiMemoryAcceptProtocol failed.\n"));
+  }
+
   //
   // Call TDINFO to get actual number of cpus in domain
   //
