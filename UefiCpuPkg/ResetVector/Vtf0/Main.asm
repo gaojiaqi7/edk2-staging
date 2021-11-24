@@ -66,6 +66,9 @@ BITS    32
 ;
 ; @return         None  This routine jumps to SEC and does not return
 Main32:
+    rdtsc
+    mov         [0x0081f800], edx
+    mov         [0x0081f804], eax
     ;
     ; Save EBX in EBP because EBX will be changed in ReloadFlat32
     ;

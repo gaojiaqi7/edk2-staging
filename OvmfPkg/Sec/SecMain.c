@@ -960,6 +960,17 @@ SecCoreStartupWithStack (
   VOID                        *TdHob;
   TD_RETURN_DATA              TdReturnData;
 
+  UINT64 tsc = 0;
+  tsc = AsmReadTsc();
+  RELEASE_DEBUG ((DEBUG_INFO,
+      "TSC in main32: %lu, %lu\n",
+      *(UINT32*)0x0081f800,
+      *(UINT32*)0x0081f804
+    ));
+  RELEASE_DEBUG ((DEBUG_INFO,
+      "TSC before jump to TDX startup: %lu\n",
+      AsmReadTsc()
+    ));
   if (TdxIsEnabled ()){
 
     TdxInitialize(&SecCoreData, BootFv, TopOfCurrentStack);

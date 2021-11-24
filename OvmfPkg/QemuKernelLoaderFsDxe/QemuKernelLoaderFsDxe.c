@@ -966,13 +966,20 @@ MeasureKernelBlob(
   TdEvent->Header.HeaderVersion = EFI_TCG2_EVENT_HEADER_VERSION;
   CopyMem (&TdEvent->Event[0], EventData, EventSize);
 
+  RELEASE_DEBUG ((DEBUG_INFO,
+      "TSC before measure kernel: %lu, BlobBase: %x, BlobSize: %x\n",
+      AsmReadTsc(), BlobBase, BlobSize
+    ));
   Status = mTdProtocol->HashLogExtendEvent (mTdProtocol,
                                             0,
                                             (EFI_PHYSICAL_ADDRESS) (UINTN) BlobBase,
                                             BlobSize,
                                             TdEvent
                                             );
-
+  RELEASE_DEBUG ((DEBUG_INFO,
+      "TSC after measure kernel: %lu\n",
+      AsmReadTsc()
+    ));
   FreePool (TdEvent);
 
   return Status;

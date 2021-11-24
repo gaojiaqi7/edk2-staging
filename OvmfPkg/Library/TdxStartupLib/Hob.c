@@ -307,7 +307,10 @@ ProcessHobList (
 
   mTdxAcceptMemSize = GetAcceptSize ();
   DEBUG ((DEBUG_INFO, "mTdxAcceptMemSize: 0x%llx\n", mTdxAcceptMemSize));
-
+  RELEASE_DEBUG ((DEBUG_INFO,
+      "TSC before accept memory: %lu\n",
+      AsmReadTsc()
+    ));
   //
   // Parse the HOB list until end of list or matching type is found.
   //
@@ -366,7 +369,10 @@ ProcessHobList (
     }
     Hob.Raw = GET_NEXT_HOB (Hob);
   }
-
+  RELEASE_DEBUG ((DEBUG_INFO,
+      "TSC after accept memory: %lu\n",
+      AsmReadTsc()
+    ));
   ASSERT (!EFI_ERROR (Status));
 
   if (LowMemoryLength == 0) {
