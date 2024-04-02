@@ -207,6 +207,7 @@
   DxeHardwareInfoLib|OvmfPkg/Library/HardwareInfoLib/DxeHardwareInfoLib.inf
   ImagePropertiesRecordLib|MdeModulePkg/Library/ImagePropertiesRecordLib/ImagePropertiesRecordLib.inf
   HstiLib|MdePkg/Library/DxeHstiLib/DxeHstiLib.inf
+  MmUnblockMemoryLib|MdePkg/Library/MmUnblockMemoryLib/MmUnblockMemoryLibNull.inf
 
 !if $(SMM_REQUIRE) == FALSE
   LockBoxLib|OvmfPkg/Library/LockBoxLib/LockBoxBaseLib.inf
