@@ -40,6 +40,7 @@ EFI_GUID  mTdVmcallServiceL1vtpmGuid = TD_VMCALL_SERVICE_L1VTPM_GUID;
 
 #define TD_VMCALL_SERVICE_BLOCKING_ACTION  0
 #define L1_VTPM_COMMAND_DETECT             1
+#define MAX_EXCLUDED_FV_NUM                3
 
 struct VMCALL_SERVICE_COMMAND_BUFFER {
   EFI_GUID Guid;
@@ -307,6 +308,8 @@ TdpDetectVirtualTpm (
   UINT64                 FvBlobLength = 0;
   UINT32                 ResponseSize = EFI_PAGE_SIZE;
   UINT32                 Offset = 0;
+  UINT32                 ExcludedFvNum = 0;
+  EFI_PEI_FIRMWARE_VOLUME_INFO_MEASUREMENT_EXCLUDED_FV   ExcludedFvInfo[MAX_EXCLUDED_FV_NUM];
   EFI_PEI_FIRMWARE_VOLUME_INFO_MEASUREMENT_EXCLUDED_PPI  *MeasurementExcludedFvPpi;
   EFI_PEI_PPI_DESCRIPTOR                                 *MeasurementExcludedPpiList;
 
@@ -361,21 +364,29 @@ TdpDetectVirtualTpm (
       FvBlobBase = *(UINT64*)(FvEventData + sizeof(FvBlobDescSize) + FvBlobDescSize);
       FvBlobLength = *(UINT64*)(FvEventData + sizeof(FvBlobDescSize) + FvBlobDescSize + sizeof(FvBlobBase));
 
-      MeasurementExcludedFvPpi = AllocatePool (sizeof (*MeasurementExcludedFvPpi));
-      ASSERT (MeasurementExcludedFvPpi != NULL);
-      MeasurementExcludedFvPpi->Count          = 1;
-      MeasurementExcludedFvPpi->Fv[0].FvBase   = FvBlobBase;
-      MeasurementExcludedFvPpi->Fv[0].FvLength = FvBlobLength;
-
       MeasurementExcludedPpiList = AllocatePool (sizeof (*MeasurementExcludedPpiList));
       ASSERT (MeasurementExcludedPpiList != NULL);
-      MeasurementExcludedPpiList->Flags = EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST;
-      MeasurementExcludedPpiList->Guid  = &gEfiPeiFirmwareVolumeInfoMeasurementExcludedPpiGuid;
-      MeasurementExcludedPpiList->Ppi   = MeasurementExcludedFvPpi;
 
-      Status = PeiServicesInstallPpi (MeasurementExcludedPpiList);
-      if (Status != EFI_SUCCESS) {
-        goto exit;
+      // `FvMain` contains two firmware volumes `PEI` and `DXE` and they are extrated into memory by `DecompressMemFvs`
+      // in `SecMain`. As `FvMain` is measured into PCR0 by SVSM, exclude `PEI` and `DXE` measurement.
+      if (FvBlobBase == FixedPcdGet32(PcdOvmfFlashFvMainBase) && FvBlobLength == FixedPcdGet32(PcdOvmfFlashFvMainSize) ) {
+        if ((ExcludedFvNum + 2) > MAX_EXCLUDED_FV_NUM) {
+          Status = EFI_UNSUPPORTED;
+          goto exit;
+        }
+        ExcludedFvInfo[ExcludedFvNum].FvBase   = FixedPcdGet32(PcdOvmfPeiMemFvBase);
+        ExcludedFvInfo[ExcludedFvNum].FvLength = FixedPcdGet32(PcdOvmfPeiMemFvSize);
+        ExcludedFvInfo[ExcludedFvNum + 1].FvBase   = FixedPcdGet32(PcdOvmfDxeMemFvBase);
+        ExcludedFvInfo[ExcludedFvNum + 1].FvLength = FixedPcdGet32(PcdOvmfDxeMemFvSize);
+        ExcludedFvNum += 2;
+      } else {
+        if ((ExcludedFvNum + 1) > MAX_EXCLUDED_FV_NUM) {
+          Status = EFI_UNSUPPORTED;
+          goto exit;
+        }
+        ExcludedFvInfo[ExcludedFvNum].FvBase   = FvBlobBase;
+        ExcludedFvInfo[ExcludedFvNum].FvLength = FvBlobLength;
+        ExcludedFvNum += 1;
       }
     }
 
@@ -383,6 +394,19 @@ TdpDetectVirtualTpm (
     if (Offset >= ResponseSize) {
       break;
     }
+  }
+
+  MeasurementExcludedFvPpi = AllocatePool (sizeof (*MeasurementExcludedFvPpi) + sizeof (EFI_PEI_FIRMWARE_VOLUME_INFO_MEASUREMENT_EXCLUDED_FV) * (ExcludedFvNum - 1));
+  ASSERT (MeasurementExcludedFvPpi != NULL);
+  CopyMem (MeasurementExcludedFvPpi->Fv, ExcludedFvInfo, sizeof (EFI_PEI_FIRMWARE_VOLUME_INFO_MEASUREMENT_EXCLUDED_FV) * ExcludedFvNum);
+  MeasurementExcludedFvPpi->Count = ExcludedFvNum;
+
+  MeasurementExcludedPpiList->Flags = EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST;
+  MeasurementExcludedPpiList->Guid  = &gEfiPeiFirmwareVolumeInfoMeasurementExcludedPpiGuid;
+  MeasurementExcludedPpiList->Ppi   = MeasurementExcludedFvPpi;
+  Status = PeiServicesInstallPpi (MeasurementExcludedPpiList);
+  if (Status != EFI_SUCCESS) {
+    goto exit;
   }
 
   PcdSet8S (PcdTpm2InitializationPolicy, 0);

@@ -38,6 +38,12 @@
 
 [Pcd]
   gEfiSecurityPkgTokenSpaceGuid.PcdTpm2InitializationPolicy        ## PRODUCES
+  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashFvMainBase                ## CONSUMES
+  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashFvMainSize                ## CONSUMES
+  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfPeiMemFvBase                   ## CONSUMES
+  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfPeiMemFvSize                   ## CONSUMES
+  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfDxeMemFvBase                   ## CONSUMES
+  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfDxeMemFvSize                   ## CONSUMES
 
 [Depex]
   gEfiPeiMemoryDiscoveredPpiGuid
