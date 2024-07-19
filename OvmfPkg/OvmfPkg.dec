@@ -264,6 +264,9 @@
   gUefiOvmfPkgTokenSpaceGuid.PcdXenPvhStartOfDayStructPtr|0x0|UINT32|0x17
   gUefiOvmfPkgTokenSpaceGuid.PcdXenPvhStartOfDayStructPtrSize|0x0|UINT32|0x32
 
+  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashFvMainBase|0x0|UINT32|0x74
+  gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashFvMainSize|0x0|UINT32|0x75
+
   ## Number of page frames to use for storing grant table entries.
   gUefiOvmfPkgTokenSpaceGuid.PcdXenGrantFrames|4|UINT32|0x33
 

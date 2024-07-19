@@ -83,6 +83,9 @@ SET gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize = $(BLOCK_SIZ
 SET gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashNvStorageFtwSpareBase = gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashNvStorageFtwWorkingBase + gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize
 SET gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize = $(VARS_SPARE_SIZE)
 
+SET gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashFvMainBase = $(CODE_BASE_ADDRESS)
+SET gUefiOvmfPkgTokenSpaceGuid.PcdOvmfFlashFvMainSize = $(FVMAIN_SIZE)
+
 # The OVMF WorkArea contains a fixed size header followed by the actual data.
 # The size of header is accessed through a fixed PCD in the reset vector code.
 # The value need to be kept in sync with the any changes to the Confidential
