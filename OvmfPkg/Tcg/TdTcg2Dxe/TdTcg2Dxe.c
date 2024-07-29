@@ -2430,7 +2430,7 @@ DriverEntry (
   EFI_EVENT   Event;
   VOID        *Registration;
 
-  if (!TdIsEnabled ()) {
+  if (!TdIsEnabled () || TdpIsEnabled ()) {
     return EFI_UNSUPPORTED;
   }
 

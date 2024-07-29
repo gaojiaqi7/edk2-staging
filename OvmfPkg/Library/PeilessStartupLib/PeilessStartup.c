@@ -86,7 +86,7 @@ InitializePlatform (
     PlatformInitEmuVariableNvStore (VariableStore);
   }
 
-  if (TdIsEnabled ()) {
+  if (TdIsEnabled () && !TdpIsEnabled ()) {
     PlatformTdxPublishRamRegions ();
   } else {
     PlatformQemuInitializeRam (PlatformInfoHob);
@@ -109,7 +109,9 @@ InitializePlatform (
   if (TdIsEnabled ()) {
     PlatformInfoHob->PcdConfidentialComputingGuestAttr = CCAttrIntelTdx;
     PlatformInfoHob->PcdTdxSharedBitMask               = TdSharedPageMask ();
-    PlatformInfoHob->PcdSetNxForStack                  = TRUE;
+    if (!TdpIsEnabled ()) {
+      PlatformInfoHob->PcdSetNxForStack                  = TRUE;
+    }
   }
 
   PlatformMiscInitialization (PlatformInfoHob);
@@ -148,7 +150,7 @@ PeilessStartup (
 
   ZeroMem (&PlatformInfoHob, sizeof (PlatformInfoHob));
 
-  if (TdIsEnabled ()) {
+  if (TdIsEnabled () && !TdpIsEnabled ()) {
     VmmHobList = (VOID *)(UINTN)FixedPcdGet32 (PcdOvmfSecGhcbBase);
     Status     = TdCall (TDCALL_TDINFO, 0, 0, 0, &TdReturnData);
     ASSERT (Status == EFI_SUCCESS);
